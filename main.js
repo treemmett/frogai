@@ -16,12 +16,8 @@ class GameController {
 
     // add 4-12 obstacles
     const numberOfObstacles = Math.floor(Math.random() * 8 + 4);
-    console.log(numberOfObstacles);
     for (let i = 0; i < numberOfObstacles; i++) {
-      this.obstacles.push({
-        x: Math.floor(Math.random() * 10),
-        y: Math.floor(Math.random() * 8)
-      });
+      this.addObstacle();
     }
 
     this.setup();
@@ -55,10 +51,7 @@ class GameController {
         // add between 0 and 3 obstacles to top row
         const num = Math.floor(Math.random() * 3);
         for (let i = 0; i < num; i++) {
-          this.obstacles.push({
-            y: 0,
-            x: Math.floor(Math.random() * 10)
-          });
+          this.addObstacle(true);
         }
         break;
 
@@ -85,6 +78,41 @@ class GameController {
     }
 
     this.render();
+  };
+
+  addObstacle = newRow => {
+    // create a map of obstacles to see if the created on overlaps any
+    const map = new Array(10)
+      .fill()
+      .map(() => new Array(10).fill().map(() => false));
+
+    for (let i = 0; i < this.obstacles.length; i++) {
+      const o = this.obstacles[i];
+
+      map[o.y][o.x] = true;
+
+      // set map for all width coordinates
+      for (let j = 0; j < o.width; j++) {
+        map[o.y][o.x + j] = true;
+      }
+    }
+
+    const createdObstacle = {
+      x: Math.floor(Math.random() * 11 - 1),
+      y: newRow ? 0 : Math.floor(Math.random() * 8),
+      width: Math.floor(Math.random() * 4) || 1
+    };
+
+    // check if any part of the obstacle collides with another
+    for (let i = 0; i < createdObstacle.width; i++) {
+      if (map[createdObstacle.y][createdObstacle.x + i]) {
+        return;
+      }
+    }
+
+    console.log(map);
+
+    this.obstacles.push(createdObstacle);
   };
 
   renderPlayer = () => {
@@ -117,7 +145,7 @@ class GameController {
       this.ctx.rect(
         this.gridW * obstacle.x + 5,
         this.gridH * obstacle.y + 5,
-        this.gridW - 10,
+        this.gridW * obstacle.width - 10,
         this.gridH - 10
       );
       this.ctx.fill();
