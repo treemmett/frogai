@@ -8,10 +8,22 @@ class GameController {
   playerPositionX = 4;
   gridX = 0;
   gridY = 0;
+  obstacles = [];
 
   constructor(canvas) {
     this.canvas = canvas;
     this.ctx = this.canvas.getContext('2d');
+
+    // add 4-12 obstacles
+    const numberOfObstacles = Math.floor(Math.random() * 8 + 4);
+    console.log(numberOfObstacles);
+    for (let i = 0; i < numberOfObstacles; i++) {
+      this.obstacles.push({
+        x: Math.floor(Math.random() * 10),
+        y: Math.floor(Math.random() * 8)
+      });
+    }
+
     this.setup();
 
     window.addEventListener('resize', this.setup);
@@ -29,6 +41,27 @@ class GameController {
 
   handleInput = e => {
     switch (e.key) {
+      case 'w':
+      case 'ArrowUp':
+        // bring all obstacles down one level
+        this.obstacles = this.obstacles
+          .map(o => ({
+            ...o,
+            y: o.y + 1
+          }))
+          // remove past obstacles
+          .filter(o => o.y < 10);
+
+        // add between 0 and 3 obstacles to top row
+        const num = Math.floor(Math.random() * 3);
+        for (let i = 0; i < num; i++) {
+          this.obstacles.push({
+            y: 0,
+            x: Math.floor(Math.random() * 10)
+          });
+        }
+        break;
+
       case 'a':
       case 'ArrowLeft':
         if (this.playerPositionX === 0) {
@@ -77,6 +110,20 @@ class GameController {
     }
   };
 
+  renderObstacles = () => {
+    this.obstacles.forEach(obstacle => {
+      this.ctx.beginPath();
+      this.ctx.fillStyle = 'brown';
+      this.ctx.rect(
+        this.gridW * obstacle.x + 5,
+        this.gridH * obstacle.y + 5,
+        this.gridW - 10,
+        this.gridH - 10
+      );
+      this.ctx.fill();
+    });
+  };
+
   render = () => {
     // clear canvas
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -85,5 +132,8 @@ class GameController {
 
     // draw player
     this.renderPlayer();
+
+    // draw all obstacles
+    this.renderObstacles();
   };
 }
