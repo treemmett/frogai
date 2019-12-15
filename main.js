@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 class GameController {
+  score = 0;
   playerPositionX = 4;
   gridX = 0;
   gridY = 0;
@@ -52,6 +53,9 @@ class GameController {
     switch (e.key) {
       case 'w':
       case 'ArrowUp':
+        // increase score
+        this.score++;
+
         // bring all obstacles down one level
         this.obstacles = this.obstacles
           .map(o => ({
@@ -173,12 +177,19 @@ class GameController {
     // clear canvas
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    this.renderGrid();
+    this.ctx.beginPath();
+    this.ctx.rect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.fillStyle = '#6fb52b';
+    this.ctx.fill();
 
     // draw player
     this.renderPlayer();
 
     // draw all obstacles
     this.renderObstacles();
+
+    this.ctx.fillStyle = 'black';
+    this.ctx.font = '20px Arial';
+    this.ctx.fillText(this.score, this.canvas.width - 50, 30);
   };
 }
