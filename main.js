@@ -14,6 +14,19 @@ class GameController {
     this.canvas = canvas;
     this.ctx = this.canvas.getContext('2d');
 
+    // load sprites
+    this.tree = new Image();
+    this.tree.src = './sprites/tree.png';
+    this.tree.onload = this.render;
+
+    this.frog = new Image();
+    this.frog.src = './sprites/frog.png';
+    this.frog.onload = this.render;
+
+    this.water = new Image();
+    this.water.src = './sprites/water.png';
+    this.water.onload = this.render;
+
     // add 4-12 obstacles
     const numberOfObstacles = Math.floor(Math.random() * 8 + 4);
     for (let i = 0; i < numberOfObstacles; i++) {
@@ -110,21 +123,17 @@ class GameController {
       }
     }
 
-    console.log(map);
-
     this.obstacles.push(createdObstacle);
   };
 
   renderPlayer = () => {
-    this.ctx.beginPath();
-    this.ctx.fillStyle = 'green';
-    this.ctx.rect(
+    this.ctx.drawImage(
+      this.frog,
       this.gridW * this.playerPositionX + 5,
       this.canvas.height - this.gridH * 2 + 5,
       this.gridW - 10,
       this.gridH - 10
     );
-    this.ctx.fill();
   };
 
   renderGrid = () => {
@@ -140,15 +149,23 @@ class GameController {
 
   renderObstacles = () => {
     this.obstacles.forEach(obstacle => {
-      this.ctx.beginPath();
-      this.ctx.fillStyle = 'brown';
-      this.ctx.rect(
-        this.gridW * obstacle.x + 5,
-        this.gridH * obstacle.y + 5,
-        this.gridW * obstacle.width - 10,
-        this.gridH - 10
-      );
-      this.ctx.fill();
+      if (obstacle.width === 1) {
+        this.ctx.drawImage(
+          this.tree,
+          this.gridW * obstacle.x + 5,
+          this.gridH * obstacle.y + 5,
+          this.gridW * obstacle.width - 10,
+          this.gridH - 10
+        );
+      } else {
+        this.ctx.drawImage(
+          this.water,
+          this.gridW * obstacle.x + 5,
+          this.gridH * obstacle.y + 5,
+          this.gridW * obstacle.width - 10,
+          this.gridH - 10
+        );
+      }
     });
   };
 
