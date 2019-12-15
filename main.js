@@ -5,11 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 class GameController {
-  score = 0;
-  playerPositionX = 4;
   gridX = 0;
   gridY = 0;
-  obstacles = [];
 
   constructor(canvas) {
     this.canvas = canvas;
@@ -28,12 +25,6 @@ class GameController {
     this.water.src = './sprites/water.png';
     this.water.onload = this.render;
 
-    // add 4-12 obstacles
-    const numberOfObstacles = Math.floor(Math.random() * 8 + 4);
-    for (let i = 0; i < numberOfObstacles; i++) {
-      this.addObstacle();
-    }
-
     this.setup();
 
     window.addEventListener('resize', this.setup);
@@ -41,11 +32,23 @@ class GameController {
   }
 
   setup = () => {
-    cancelAnimationFrame(this.frameId);
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
     this.gridW = this.canvas.width / 10;
     this.gridH = this.canvas.height / 10;
+
+    // clear obstacles
+    this.obstacles = [];
+
+    this.playerPositionX = 4;
+    this.score = 0;
+
+    // add 4-12 obstacles
+    const numberOfObstacles = Math.floor(Math.random() * 8 + 4);
+    for (let i = 0; i < numberOfObstacles; i++) {
+      this.addObstacle();
+    }
+
     this.render();
   };
 
@@ -92,6 +95,21 @@ class GameController {
 
       default:
         return;
+    }
+
+    // check if a collision has occurred
+    const collisionOccurred = this.obstacles
+      .filter(o => o.y === 8)
+      .some(o => {
+        for (let i = 0; i < o.width; i++) {
+          if (o.x + i === this.playerPositionX) {
+            return true;
+          }
+        }
+      });
+
+    if (collisionOccurred) {
+      this.setup();
     }
 
     this.render();
